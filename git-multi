@@ -1,0 +1,156 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import sys as mod_sys
+import os as mod_os
+import os.path as mod_path
+import datetime as mod_datetime
+
+PREFIX = '\t\t'
+
+current_path = mod_os.getcwd()
+
+group_by_output = False
+
+only_if_changed = False
+
+args = mod_sys.argv[ 1 : ]
+
+def execute_command( command, output = True, prefix = '' ):
+	output = ''
+	p = mod_os.popen( command )
+	for line in p:
+		output_line = prefix + ( '%s' % line ).strip() + '\n'
+		if output:
+			if output_line:
+				print output_line.rstrip()
+		else:
+			output += output_line
+
+	return ( not p.close(), output )
+
+def get_arg( args, short_name, long_name ):
+	for i in range( len( args ) ):
+		arg = args[ i ]
+		if arg[ 0 ] != '-':
+			return None
+		if arg.startswith( '--%s=' % long_name ):
+			args.remove( arg )
+			return arg.replace( '--%s=' % long_name, '' )
+		elif arg == '-%s' % short_name:
+			result = args[ i + 1 ]
+			args.remove( '-%s' % short_name )
+			args.remove( result )
+			return result
+	return None
+
+def has_arg( args, short_name, long_name ):
+	for arg in args:
+		if arg[ 0 ] != '-':
+			return False
+		if arg == '--%s' % long_name or arg == '-%s' % short_name:
+			args.remove( arg )
+			return True
+	return False
+
+backup = has_arg( args, 'a', 'archive' )
+project = get_arg( args, 'p', 'project' )
+if project and project[ -1 ] == '/':
+	project = project[ : -1 ]
+
+except_projects = get_arg( args, 'e', 'except' )
+only_if_changed = has_arg( args, 'c', 'changed' )
+branch = has_arg( args, 'b', 'branch' )
+
+ignore_projects = []
+if mod_path.exists( '.multigit_ignore' ):
+	f = open( '.multigit_ignore' )
+	for line in f:
+		project = line.strip()
+		print 'Ignoring:', project
+		ignore_projects.append( project )
+	f.close()
+
+if backup:
+	now = mod_datetime.datetime.now()
+	now = now.strftime( '%Y-%m-%d-%H-%M' )
+	tar_name = 'git-repositories-%s.tar' % ( now )
+
+	executed, output = execute_command( 'tar cvf %s */.git */.gitignore' % tar_name, output = True )
+
+	print 'Saved git repositories to %s' % tar_name
+
+	mod_sys.exit( 0 )
+
+git_command = 'status -s'
+if args:
+	git_command = ' '.join( args )
+
+if branch:
+	git_command = 'branch | grep "*"'
+	group_by_output = True
+
+git_command = 'git %s' % git_command
+
+print 'Executing on subrepositories:%s' % git_command
+print '-----------------------------------------------'
+
+def is_ignored( project ):
+	return file_name in ignore_projects
+
+def is_changed():
+	executed, changed_lines = execute_command( 'git status --porcelain' )
+	return changed_lines
+
+# Used when group_by_output == True, keys are output, values are a list of projects
+outputs = {}
+
+def process_project( current_path, file_name ):
+	if is_ignored( file_name in ignore_projects ):
+		return
+
+	dir_path = '%s/%s' % ( current_path, file_name )
+	mod_os.chdir( dir_path )
+
+	output = ''
+
+	if not mod_path.exists( '%s/.git' % dir_path ):
+		return
+
+	execute = True
+	if only_if_changed:
+		execute = is_changed()
+		if not execute:
+			output = '%s: not changed' % file_name
+	if execute:
+		if not group_by_output:
+			print '%s:' % file_name
+
+		executed, result = execute_command( git_command, prefix = '\t' )
+		result = result.rstrip()
+		if not executed:
+			output = '\tError executing:%s' % git_command
+		elif result:
+			output = result
+		else:
+			output = '\tExecuted'
+
+	if group_by_output:
+		if outputs.has_key( output ):
+			outputs[ output ].append( file_name )
+		else:
+			outputs[ output ] = [ file_name ]
+	else:
+		print output
+
+for file_name in mod_os.listdir( '.' ):
+
+	mod_os.chdir( current_path )
+
+	if mod_path.isdir( file_name ):
+		process_project( current_path, file_name )
+
+if group_by_output:
+	for output, projects in outputs.items():
+		print ', '.join( projects ) + ':'
+		print output
