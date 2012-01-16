@@ -8,26 +8,24 @@ import datetime as mod_datetime
 
 PREFIX = '\t\t'
 
+args = mod_sys.argv[ 1 : ]
 current_path = mod_os.getcwd()
-
 group_by_output = False
-
 only_if_changed = False
 
-args = mod_sys.argv[ 1 : ]
-
-def execute_command( command, output = True, prefix = '' ):
-	output = ''
+def execute_command( command, output = True, prefix = '', grep = None ):
+	result = ''
 	p = mod_os.popen( command )
 	for line in p:
 		output_line = prefix + ( '%s' % line ).strip() + '\n'
-		if output:
-			if output_line:
-				print output_line.rstrip()
-		else:
-			output += output_line
+		if not grep or grep in output_line:
+			if result:
+				if output and output_line:
+					print output_line.rstrip()
+			else:
+				result += output_line
 
-	return ( not p.close(), output )
+	return ( not p.close(), result )
 
 def get_arg( args, short_name, long_name ):
 	for i in range( len( args ) ):
@@ -82,13 +80,16 @@ if backup:
 
 	mod_sys.exit( 0 )
 
+grep = None
+
 git_command = 'status -s'
 if args:
 	git_command = ' '.join( args )
 
 if branch:
-	git_command = 'branch | grep "*"'
+	git_command = 'branch'
 	group_by_output = True
+	grep = '*'
 
 git_command = 'git %s' % git_command
 
@@ -126,7 +127,7 @@ def process_project( current_path, file_name ):
 		if not group_by_output:
 			print '%s:' % file_name
 
-		executed, result = execute_command( git_command, prefix = '\t' )
+		executed, result = execute_command( git_command, output = not grep, prefix = '\t', grep = grep )
 		result = result.rstrip()
 		if not executed:
 			output = '\tError executing:%s' % git_command
