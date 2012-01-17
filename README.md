@@ -48,4 +48,4 @@ Copy or create a symlink of the git-multi script in your /usr/lib/git-core direc
 See also
 --------
 
-See also https://github.com/tkrajina/TinyLayerAroundGit for a eclipse project with similar functionality.
+See also https://github.com/tkrajina/TinyLayerAroundGit for a eclipse plugin with similar functionality.
