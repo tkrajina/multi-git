@@ -49,3 +49,8 @@ See also
 --------
 
 See also https://github.com/tkrajina/TinyLayerAroundGit for a eclipse plugin with similar functionality.
+
+License
+-------
+
+Multi git is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
