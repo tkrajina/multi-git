@@ -103,7 +103,7 @@ def is_ignored( project ):
 	return file_name in ignore_projects
 
 def is_changed():
-	executed, changed_lines = execute_command( 'git status --porcelain' )
+	executed, changed_lines = execute_command( 'git status --porcelain', output = False)
 	return changed_lines
 
 # Used when group_by_output == True, keys are output, values are a list of projects
