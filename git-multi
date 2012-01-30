@@ -7,13 +7,13 @@ import os.path as mod_path
 import datetime as mod_datetime
 
 # Prefix for git command output:
-PREFIX = '\t\t'
+PREFIX = '\t'
 
 args = mod_sys.argv[ 1 : ]
 current_path = mod_os.getcwd()
 
 # If true, projects with same git command output will be groupped together:
-group_by_output = False
+group_by_output = True
 
 # -c switch in command line, if true execute only if project not changed (i.e.
 # the `git --porcelain` output is empty:
@@ -97,7 +97,9 @@ if branch:
 
 git_command = 'git %s' % git_command
 
-print '\nExecuting:%s\n' % git_command
+print '--------------------------------------------------------------------------------'
+print 'Executing: %s' % git_command
+print '--------------------------------------------------------------------------------'
 
 def is_ignored( project ):
 	return file_name in ignore_projects
@@ -121,28 +123,32 @@ def process_project( current_path, file_name ):
 	if not mod_path.exists( '%s/.git' % dir_path ):
 		return
 
+	if grep or group_by_output:
+		do_output = False
+	else:
+		do_output = True
+
+	if not group_by_output:
+		print '%s:' % file_name
+
 	execute = True
 	if only_if_changed:
 		execute = is_changed()
 		if not execute:
-			output = '%s: not changed' % file_name
+			output = PREFIX + 'Not changed'
+			if do_output:
+				print output
+
 	if execute:
-		if not group_by_output:
-			print '%s:' % file_name
-
-		if grep or group_by_output:
-			do_output = False
-		else:
-			do_output = True
-
-		executed, result = execute_command( git_command, output = do_output, prefix = '\t', grep = grep )
+		executed, result = execute_command( git_command, output = do_output, prefix = PREFIX, grep = grep )
 		result = result.rstrip()
+
 		if not executed:
 			output = '\tError executing:%s' % git_command
 		elif result:
 			output = result
 		else:
-			output = '\tExecuted'
+			output = '\tOK'
 
 	if group_by_output:
 		if outputs.has_key( output ):
@@ -161,3 +167,4 @@ if group_by_output:
 	for output, projects in outputs.items():
 		print ', '.join( projects ) + ':'
 		print output
+		print
