@@ -16,7 +16,7 @@ current_path = mod_os.getcwd()
 group_by_output = False
 
 # -c switch in command line, if true execute only if project not changed (i.e.
-# id `git --porcelain` output is empty:
+# the `git --porcelain` output is empty:
 only_if_changed = False
 
 def execute_command( command, output = True, prefix = '', grep = None ):
