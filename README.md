@@ -40,6 +40,46 @@ With:
 
 A .tar archive named git-repositories-yyyy-mm-dd-hh-mm.tar with all repositories in this directory (i.e. their .git directories) will be created.
 
+Group by output
+---------------
+
+If you have many projects with same git commant output, for example:
+
+    git multi status
+    
+    aaa:
+    	# On branch master
+    	nothing to commit (working directory clean)
+    bbb:
+    	# On branch TRUNK
+    	nothing to commit (working directory clean)
+    ccc:
+    	# On branch master
+    	nothing to commit (working directory clean)
+    ddd:
+    	# On branch master
+    	nothing to commit (working directory clean)
+    eee:
+    	# On branch TRUNK
+    	nothing to commit (working directory clean)
+
+You can configure multi git to group projects with same output together:
+
+    aaa, ccc, ddd:
+    	# On branch master
+    	nothing to commit (working directory clean)
+    bbb, eee:
+    	# On branch TRUNK
+    	nothing to commit (working directory clean)
+
+This can be done by setting:
+
+    git config --global 'multi.groupbyoutput' 1
+
+Or reset to default with:
+
+    git config --global --unset 'multi.groupbyoutput'
+
 Installation
 ------------
 
