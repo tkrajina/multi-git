@@ -70,7 +70,7 @@ def has_arg( args, short_name, long_name ):
 	return False
 
 def get_config_properties():
-	executed, output = execute_command( 'git config -l' )
+	executed, output = execute_command( 'git config -l', output = False )
 
 	if not executed:
 		print 'Error retrieving git config properties'
@@ -128,8 +128,8 @@ if mod_path.exists( '.multigit_ignore' ):
 	f = open( '.multigit_ignore' )
 	for line in f:
 		project = line.strip()
-		print 'Ignoring:', project
 		ignore_projects.append( project )
+	print 'Ignoring:', ', '.join( ignore_projects )
 	f.close()
 
 # Execute backup?
