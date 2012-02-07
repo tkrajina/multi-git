@@ -109,9 +109,9 @@ if group_by_output_config_key in config_properties:
 backup = has_arg( args, 'a', 'archive' )
 
 # Check if needed to be executed on only one project:
-project = get_arg( args, 'p', 'project' )
-if project and project[ -1 ] == '/':
-	project = project[ : -1 ]
+single_project = get_arg( args, 'p', 'project' )
+if single_project and single_project[ -1 ] == '/':
+	single_project = single_project[ : -1 ]
 
 # Check projects which we don't need to be part of gut multi commands execution:
 except_projects = get_arg( args, 'e', 'except' )
@@ -220,10 +220,11 @@ def process_project( current_path, file_name ):
 # Execute command on all subdirectories:
 for file_name in mod_os.listdir( '.' ):
 
-	mod_os.chdir( current_path )
+	if not single_project or single_project == file_name:
+		mod_os.chdir( current_path )
 
-	if mod_path.isdir( file_name ):
-		process_project( current_path, file_name )
+		if mod_path.isdir( file_name ):
+			process_project( current_path, file_name )
 
 # If group_by_output, then output them now:
 if group_by_output:
