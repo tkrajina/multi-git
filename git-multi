@@ -88,6 +88,58 @@ def get_config_properties():
 	
 	return result
 
+def is_ignored( project ):
+	return file_name in ignore_projects
+
+def is_changed():
+	executed, changed_lines = execute_command( 'git status --porcelain', output = False)
+	return changed_lines
+
+def process_project( current_path, file_name ):
+	if is_ignored( file_name in ignore_projects ):
+		return
+
+	dir_path = '%s/%s' % ( current_path, file_name )
+	mod_os.chdir( dir_path )
+
+	output = ''
+
+	if not mod_path.exists( '%s/.git' % dir_path ):
+		return
+
+	if group_by_output:
+		do_output = False
+	else:
+		do_output = True
+
+	if not group_by_output:
+		print '%s:' % file_name
+
+	execute = True
+	if only_if_changed:
+		execute = is_changed()
+		if not execute:
+			output = PREFIX + 'Not changed'
+			if do_output:
+				print output
+
+	if execute:
+		executed, result = execute_command( git_command, output = do_output, prefix = PREFIX, grep = grep )
+		result = result.rstrip()
+
+		if not executed:
+			output = '\tError executing:%s' % git_command
+		elif result:
+			output = result
+		else:
+			output = '\tOK'
+
+	if group_by_output:
+		if outputs.has_key( output ):
+			outputs[ output ].append( file_name )
+		else:
+			outputs[ output ] = [ file_name ]
+
 # If true, projects with same git command output will be groupped together:
 group_by_output = False
 
@@ -162,64 +214,11 @@ print '-------------------------------------------------------------------------
 print 'Executing: %s' % git_command
 print '--------------------------------------------------------------------------------'
 
-def is_ignored( project ):
-	return file_name in ignore_projects
-
-def is_changed():
-	executed, changed_lines = execute_command( 'git status --porcelain', output = False)
-	return changed_lines
-
 # Used when group_by_output == True, keys are output, values are a list of projects
 outputs = {}
 
-def process_project( current_path, file_name ):
-	if is_ignored( file_name in ignore_projects ):
-		return
-
-	dir_path = '%s/%s' % ( current_path, file_name )
-	mod_os.chdir( dir_path )
-
-	output = ''
-
-	if not mod_path.exists( '%s/.git' % dir_path ):
-		return
-
-	if group_by_output:
-		do_output = False
-	else:
-		do_output = True
-
-	if not group_by_output:
-		print '%s:' % file_name
-
-	execute = True
-	if only_if_changed:
-		execute = is_changed()
-		if not execute:
-			output = PREFIX + 'Not changed'
-			if do_output:
-				print output
-
-	if execute:
-		executed, result = execute_command( git_command, output = do_output, prefix = PREFIX, grep = grep )
-		result = result.rstrip()
-
-		if not executed:
-			output = '\tError executing:%s' % git_command
-		elif result:
-			output = result
-		else:
-			output = '\tOK'
-
-	if group_by_output:
-		if outputs.has_key( output ):
-			outputs[ output ].append( file_name )
-		else:
-			outputs[ output ] = [ file_name ]
-
 # Execute command on all subdirectories:
 for file_name in mod_os.listdir( '.' ):
-
 	if not single_project or single_project == file_name:
 		mod_os.chdir( current_path )
 
