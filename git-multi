@@ -227,7 +227,12 @@ for file_name in mod_os.listdir( '.' ):
 
 # If group_by_output, then output them now:
 if group_by_output:
-	for output, projects in outputs.items():
+	output_keys = outputs.keys()
+	output_keys.sort()
+	for output in output_keys:
+		projects = outputs[ output ]
+		projects.sort()
+
 		print ', '.join( projects ) + ':'
 		print output
 		print
