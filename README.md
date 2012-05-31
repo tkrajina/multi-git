@@ -83,7 +83,9 @@ Or reset to default with:
 Installation
 ------------
 
-Copy or create a symlink of the git-multi script in your /usr/lib/git-core directory.
+Add a directory containing the script git-multi to your $PATH:
+
+    export PATH=$PATH:/path/to/multigit
 
 See also
 --------
