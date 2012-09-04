@@ -207,7 +207,10 @@ if branch:
     group_by_output = True
     grep = '*'
 
-git_command = 'git %s' % git_command
+if git_command.startswith('gitk'):
+    git_command = git_command
+else:
+    git_command = 'git %s' % git_command
 
 print '--------------------------------------------------------------------------------'
 print 'Executing: %s' % git_command
