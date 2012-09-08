@@ -41,7 +41,7 @@ def execute_command(command, output=True, prefix='', grep=None):
         if not grep or grep in output_line:
             if output and output_line:
                 print output_line.rstrip()
-            result += output_line
+            result += output_line.rstrip()
 
     return (not p.close(), result)
 
@@ -203,8 +203,8 @@ if args:
     git_command = ' '.join(args)
 
 if branch:
-    git_command = 'branch'
-    group_by_output = True
+    git_command = 'branch -v'
+    # group_by_output = True
     grep = '*'
 
 if git_command.startswith('gitk'):
@@ -213,7 +213,10 @@ else:
     git_command = 'git %s' % git_command
 
 print '--------------------------------------------------------------------------------'
-print 'Executing: %s' % git_command
+if grep:
+   print 'Executing: %s (grep is %s)' % ( git_command, grep )
+else:
+   print 'Executing %s' % git_command
 print '--------------------------------------------------------------------------------'
 
 # Used when group_by_output == True, keys are output, values are a list of projects
