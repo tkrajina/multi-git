@@ -214,7 +214,7 @@ else:
 
 print '--------------------------------------------------------------------------------'
 if grep:
-   print 'Executing: %s (grep is %s)' % ( git_command, grep )
+   print 'Executing: %s | grep %s' % ( git_command, grep )
 else:
    print 'Executing %s' % git_command
 print '--------------------------------------------------------------------------------'
