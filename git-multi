@@ -172,6 +172,7 @@ only_if_changed = has_arg(args, 'c', 'changed')
 
 # Output only the current branch for all projects:
 branch = has_arg(args, 'b', 'branch')
+branch_verbose = has_arg(args, 'bv', 'branch-verbose')
 
 # Compute projects to be executed:
 ignore_projects = []
@@ -202,10 +203,13 @@ git_command = 'status -s'
 if args:
     git_command = ' '.join(args)
 
-if branch:
+if branch_verbose:
     git_command = 'branch -v'
-    # group_by_output = True
-    grep = '*'
+    group_by_output = True
+    grep = '* '
+elif branch:
+    git_command = 'branch'
+    grep = '* '
 
 if git_command.startswith('gitk'):
     git_command = git_command
