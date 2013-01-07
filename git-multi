@@ -41,6 +41,7 @@ def execute_command(command, output=True, prefix='', grep=None):
         if not grep or grep in output_line:
             if output and output_line:
                 print output_line.rstrip()
+                mod_sys.stdout.flush()
             result += output_line.rstrip()
 
     return (not p.close(), result)
