@@ -94,7 +94,8 @@ def is_ignored(project):
 
 def is_changed():
     executed, changed_lines = execute_command('git status --porcelain', output=False)
-    return changed_lines
+    merge_not_finished = mod_path.exists('.git/MERGE_HEAD')
+    return changed_lines or merge_not_finished
 
 def process_project(current_path, file_name):
     if is_ignored(file_name in ignore_projects):
