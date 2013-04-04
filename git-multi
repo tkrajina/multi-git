@@ -37,7 +37,7 @@ def execute_command(command, output=True, prefix='', grep=None):
     result = ''
     p = mod_os.popen(command)
     for line in p:
-        output_line = prefix + ('%s' % line).strip() + '\n'
+        output_line = prefix + ('%s' % line).rstrip() + '\n'
         if not grep or grep in output_line:
             if output and output_line:
                 print output_line.rstrip()
