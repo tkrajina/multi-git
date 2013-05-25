@@ -1,3 +1,5 @@
+# This repository is deprecated, git-multi is moved to [git-plus](https://github.com/tkrajina/git-plus).
+
 Multi git
 =========
 
